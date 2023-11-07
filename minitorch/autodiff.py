@@ -24,12 +24,11 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     """
     # TODO: Implement for Task 1.1.
     vals = list(vals)
-    vals[arg] += epsilon
     f1 = f(*vals)
-    vals[arg] -= 2 * epsilon
+    vals[arg] -= epsilon
     f2 = f(*vals)
-    return (f1 - f2) / (2 * epsilon)
-    # raise NotImplementedError('Need to implement for Task 1.1')
+    return (f1 - f2) / epsilon
+   
 
 
 variable_count = 1
@@ -79,17 +78,15 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
         if n.unique_id in temp_mark:
             return RuntimeError("Not a DAG")
         temp_mark.add(n.unique_id)
-        if n.is_leaf():
-            pass
-        else:
-            for i in n.history.inputs:
-                dfs(i)
+        for parent in n.parents:
+            dfs(parent)
         temp_mark.remove(n.unique_id)
         perma_mark.add(n.unique_id)
         res.append(n)
     dfs(variable)
+    res.reverse()
     return res
-    # raise NotImplementedError('Need to implement for Task 1.4')
+    
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -104,19 +101,21 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
     # TODO: Implement for Task 1.4.
-    ordered = topological_sort(variable)
-    d = {variable.unique_id: deriv}
-    for v in ordered:
-        d_output = d[v.unique_id]
-        if v.is_leaf():
-            v.accumulate_derivative(d_output)
+    derivs = {variable.unique_id: deriv}
+    variables = topological_sort(variable)
+
+    for var in variables:
+        if var.is_leaf():
+            var.accumulate_derivative(derivs[var.unique_id])
         else:
-            for parent, d_parent in v.history.last_fn.chain_rule(d_output):
-                if parent.unique_id not in d:
-                    d[parent.unique_id] = 0.0
-                d[parent.unique_id] += d_parent
-    return
-    # raise NotImplementedError('Need to implement for Task 1.4')
+            for v, d in var.chain_rule(derivs[var.unique_id]):
+                if v.unique_id not in derivs.keys():
+                    derivs[v.unique_id] = d
+                else:
+                    derivs[v.unique_id] += d
+
+    
+   
 
 
 @dataclass
