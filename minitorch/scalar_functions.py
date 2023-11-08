@@ -140,7 +140,6 @@ class Neg(ScalarFunction):
     @staticmethod
     def forward(ctx: Context, a: float) -> float:
         # TODO: Implement for Task 1.2.
-        ctx.save_for_backward(a)
         return operators.mul(-1.0, a)
       
     @staticmethod
