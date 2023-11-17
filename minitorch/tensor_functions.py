@@ -229,8 +229,7 @@ class Permute(Function):
     def forward(ctx: Context, a: Tensor, order: Tensor) -> Tensor:
         # TODO: Implement for Task 2.3.
         ctx.save_for_backward(order)
-        data = a._tensor.permute(*order)
-        return Tensor(data, backend=a.backend)
+        return minitorch.Tensor(a._tensor.permute(*order), backend=a.backend)
 
     @staticmethod
     def backward(ctx: Context, grad_output: Tensor) -> Tuple[Tensor, float]:
@@ -239,8 +238,7 @@ class Permute(Function):
         reorder = [0 for _ in range(len(order))]
         for d1, d2 in enumerate(order):
             reorder[d2] = d1
-        data = grad_output._tensor.permute(*reorder)
-        return Tensor(data, backend=grad_output.backend), 0.0
+        return Tuple(minitorch.Tensor(grad_output._tensor.permute(*reorder), backend=grad_output.backend), 0.0)
 
 
 class View(Function):

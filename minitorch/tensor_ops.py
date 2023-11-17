@@ -328,18 +328,11 @@ def tensor_zip(
         b_index = [0 for _ in b_shape_extended]
 
         for i in range(len(out)):
-            # Convert ordinal i to an index in the out_shape
             to_index(i, out_shape, out_index)
-
-            # Map the out_index to a_index and b_index taking broadcasting into account
             broadcast_index(out_index, out_shape, a_shape_extended, a_index)
             broadcast_index(out_index, out_shape, b_shape_extended, b_index)
-
-            # Convert multidimensional indices to positions
             a_pos = index_to_position(a_index, a_strides_extended)
             b_pos = index_to_position(b_index, b_strides_extended)
-
-            # Apply function
             out[i] = fn(a_storage[a_pos], b_storage[b_pos])
 
     return _zip
