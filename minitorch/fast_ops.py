@@ -308,7 +308,20 @@ def _tensor_matrix_multiply(
     b_batch_stride = b_strides[0] if b_shape[0] > 1 else 0
 
     # TODO: Implement for Task 3.2.
-    raise NotImplementedError('Need to implement for Task 3.2')
-
+    for i in prange(len(out)):
+        out_index = np.zeros(len(out_shape),np.int32)
+        to_index(i, out_shape, out_index)
+        partial_sum = 0.0
+        for k in range(a_shape[-1]):
+            a_index = np.copy(out_index)
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            a_index[-1] = k
+            b_index = np.copy(out_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+            b_index[-2] = k
+            a_pos = a_storage[index_to_position(a_index, a_strides)]
+            b_pos = b_storage[index_to_position(b_index, b_strides)]
+            partial_sum = partial_sum + a_pos * b_pos
+        out[i] = partial_sum
 
 tensor_matrix_multiply = njit(parallel=True, fastmath=True)(_tensor_matrix_multiply)

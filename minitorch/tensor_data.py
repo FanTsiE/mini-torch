@@ -97,7 +97,7 @@ def broadcast_index(
         else:
             out_index[i] = offset
 
-
+@numba.njit
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     """
     Broadcast two shapes to create a new union shape.
